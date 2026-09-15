@@ -18,11 +18,16 @@ public static class DependencyInjection
         });
 
         var rabbitMqConnectionString = configuration.GetConnectionString("RabbitMq")
-            ?? throw new InvalidOperationException("A ConnectionString \"RabbitMq\" não foi configurada");
+            ?? throw new InvalidOperationException(
+                "A ConnectionString \"RabbitMq\" não foi configurada"
+            );
 
         services.AddMassTransit(config =>
         {
-
+            config.UsingRabbitMq((context, cfg) =>
+            {
+                cfg.Host(new Uri(rabbitMqConnectionString));
+            });
         });
 
         services.Configure<MassTransitHostOptions>(options =>

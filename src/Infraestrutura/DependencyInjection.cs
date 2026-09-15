@@ -1,4 +1,6 @@
+using DeliveryApp.Dominio.Modulos.Clientes;
 using DeliveryApp.Infraestrutura.Compartilhado.Orm;
+using DeliveryApp.Infraestrutura.Modulos.Clientes;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -9,22 +11,23 @@ namespace DeliveryApp.Infraestrutura;
 public static class DependencyInjection
 {
     public static void AddInfrastructureServices(
-        this IServiceCollection services,
-        IConfiguration configuration
-    )
+     this IServiceCollection services,
+     IConfiguration configuration
+ )
     {
-
-
         services.AddDataProtection();
+
         services.AddIdentityCore<IdentityUser<Guid>>(options =>
         {
             options.User.RequireUniqueEmail = true;
             options.SignIn.RequireConfirmedEmail = false;
+
             options.Password.RequiredLength = 8;
             options.Password.RequireDigit = true;
             options.Password.RequireNonAlphanumeric = true;
             options.Password.RequireUppercase = false;
             options.Password.RequireLowercase = false;
+
             options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
             options.Lockout.MaxFailedAccessAttempts = 5;
             options.Lockout.AllowedForNewUsers = true;
@@ -40,12 +43,13 @@ public static class DependencyInjection
             }
             else
             {
-                string? connectionString = configuration.GetConnectionString("PostgresEF");
+                string? connectionString =
+                    configuration.GetConnectionString("PostgresEF");
 
                 if (string.IsNullOrWhiteSpace(connectionString))
                 {
                     throw new InvalidOperationException(
-                        $"A connection string \"PostgresEF\" não foi encontrada."
+                        "A connection string \"PostgresEF\" não foi encontrada."
                     );
                 }
 
@@ -55,5 +59,7 @@ public static class DependencyInjection
                 });
             }
         });
+
+        services.AddScoped<IRepositorioCliente, RepositorioClienteEmOrm>();
     }
 }
