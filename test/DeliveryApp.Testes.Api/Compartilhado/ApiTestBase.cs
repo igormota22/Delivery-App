@@ -1,3 +1,4 @@
+
 using DeliveryApp.Infraestrutura.Compartilhado.Orm;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -14,6 +15,7 @@ public abstract class ApiTestBase
     protected HttpClient Client { get; private set; } = null!;
 
     private readonly List<Guid> clientesCriados = [];
+    private readonly List<Guid> estabelecimentosCriados = [];
 
     [TestInitialize]
     public void Inicializar()
@@ -24,6 +26,11 @@ public abstract class ApiTestBase
     protected void RegistrarClienteCriado(Guid clienteId)
     {
         clientesCriados.Add(clienteId);
+    }
+
+    protected void RegistrarEstabelecimentoCriado(Guid estabelecimentoId)
+    {
+        estabelecimentosCriados.Add(estabelecimentoId);
     }
 
     [TestCleanup]
@@ -52,6 +59,33 @@ public abstract class ApiTestBase
 
             IdentityUser<Guid>? usuario =
                 await userManager.FindByIdAsync(clienteId.ToString());
+
+            if (usuario is not null)
+            {
+                IdentityResult resultado =
+                    await userManager.DeleteAsync(usuario);
+
+                Console.WriteLine(
+                    $"Usuário removido: {resultado.Succeeded}"
+                );
+            }
+        }
+
+        foreach (Guid estabelecimentoId in estabelecimentosCriados)
+        {
+            Console.WriteLine(
+                $"Removendo estabelecimento: {estabelecimentoId}"
+            );
+
+            await dbContext.Database.ExecuteSqlInterpolatedAsync($"""
+                DELETE FROM "TBEstabelecimentos"
+                WHERE "Id" = {estabelecimentoId};
+                """);
+
+            IdentityUser<Guid>? usuario =
+                await userManager.FindByIdAsync(
+                    estabelecimentoId.ToString()
+                );
 
             if (usuario is not null)
             {
