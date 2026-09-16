@@ -1,6 +1,8 @@
+using DeliveryApp.Dominio.Modulos.Cardapio;
 using DeliveryApp.Dominio.Modulos.Clientes;
 using DeliveryApp.Dominio.Modulos.Estabelecimentos;
 using DeliveryApp.Infraestrutura.Compartilhado.Orm;
+using DeliveryApp.Infraestrutura.Modulos.Cardapio;
 using DeliveryApp.Infraestrutura.Modulos.Clientes;
 using DeliveryApp.Infraestrutura.Modulos.Estabelecimentos;
 using DeliveryApp.Testes.Integracao.Compartilhado.Identity;
@@ -19,6 +21,10 @@ public abstract class RepositorioBaseEmOrmTests
 
     protected RepositorioClienteEmOrm repositorioCliente = null!;
     protected RepositorioEstabelecimentoEmOrm repositorioEstabelecimento = null!;
+    protected RepositorioCategoriaEmOrm repositorioCategoria = null!;
+    protected RepositorioProdutoEmOrm repositorioProduto = null!;
+
+
 
 
     // =========================================================
@@ -67,6 +73,50 @@ public abstract class RepositorioBaseEmOrmTests
                 {
                     repositorioEstabelecimento
                         .CadastrarAsync(estabelecimento)
+                        .GetAwaiter()
+                        .GetResult();
+                }
+            }
+        );
+
+        repositorioCategoria = new RepositorioCategoriaEmOrm(dbContext);
+
+        BuilderSetup.SetCreatePersistenceMethod<Categoria>(
+            categoria => repositorioCategoria
+                .CadastrarAsync(categoria)
+                .GetAwaiter()
+                .GetResult()
+        );
+
+        BuilderSetup.SetCreatePersistenceMethod<IList<Categoria>>(
+            categorias =>
+            {
+                foreach (Categoria categoria in categorias)
+                {
+                    repositorioCategoria
+                        .CadastrarAsync(categoria)
+                        .GetAwaiter()
+                        .GetResult();
+                }
+            }
+        );
+
+        repositorioProduto = new RepositorioProdutoEmOrm(dbContext);
+
+        BuilderSetup.SetCreatePersistenceMethod<Produto>(
+            produto => repositorioProduto
+                .CadastrarAsync(produto)
+                .GetAwaiter()
+                .GetResult()
+        );
+
+        BuilderSetup.SetCreatePersistenceMethod<IList<Produto>>(
+            produtos =>
+            {
+                foreach (Produto produto in produtos)
+                {
+                    repositorioProduto
+                        .CadastrarAsync(produto)
                         .GetAwaiter()
                         .GetResult();
                 }
