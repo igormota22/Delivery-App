@@ -1,5 +1,6 @@
 using DeliveryApp.Dominio.Compartilhado.Auth;
 using DeliveryApp.Dominio.Modulos.Clientes;
+using DeliveryApp.Dominio.Modulos.Estabelecimentos;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +16,7 @@ public sealed class DeliveryAppDbContext(
     private static readonly Guid TipoUsuarioEstabelecimentoId = new("01a06851-5e71-7ae2-822d-21e2fadcffa4");
 
     public DbSet<Cliente> Clientes => Set<Cliente>();
+    public DbSet<Estabelecimento> Estabelecimentos => Set<Estabelecimento>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

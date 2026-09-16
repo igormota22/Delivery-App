@@ -1,6 +1,8 @@
 using DeliveryApp.Dominio.Modulos.Clientes;
+using DeliveryApp.Dominio.Modulos.Estabelecimentos;
 using DeliveryApp.Infraestrutura.Compartilhado.Orm;
 using DeliveryApp.Infraestrutura.Modulos.Clientes;
+using DeliveryApp.Infraestrutura.Modulos.Estabelecimentos;
 using DeliveryApp.Testes.Integracao.Compartilhado.Identity;
 using FizzWare.NBuilder;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +18,7 @@ public abstract class RepositorioBaseEmOrmTests
     // =========================================================
 
     protected RepositorioClienteEmOrm repositorioCliente = null!;
+    protected RepositorioEstabelecimentoEmOrm repositorioEstabelecimento = null!;
 
 
     // =========================================================
@@ -42,6 +45,28 @@ public abstract class RepositorioBaseEmOrmTests
                 {
                     repositorioCliente
                         .CadastrarAsync(cliente)
+                        .GetAwaiter()
+                        .GetResult();
+                }
+            }
+        );
+
+        repositorioEstabelecimento = new RepositorioEstabelecimentoEmOrm(dbContext);
+
+        BuilderSetup.SetCreatePersistenceMethod<Estabelecimento>(
+            estabelecimento => repositorioEstabelecimento
+                .CadastrarAsync(estabelecimento)
+                .GetAwaiter()
+                .GetResult()
+        );
+
+        BuilderSetup.SetCreatePersistenceMethod<IList<Estabelecimento>>(
+            estabelecimentos =>
+            {
+                foreach (Estabelecimento estabelecimento in estabelecimentos)
+                {
+                    repositorioEstabelecimento
+                        .CadastrarAsync(estabelecimento)
                         .GetAwaiter()
                         .GetResult();
                 }
