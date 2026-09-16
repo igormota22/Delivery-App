@@ -16,6 +16,8 @@ public abstract class ApiTestBase
 
     private readonly List<Guid> clientesCriados = [];
     private readonly List<Guid> estabelecimentosCriados = [];
+    private readonly List<Guid> categoriasCriadas = [];
+    private readonly List<Guid> produtosCriados = [];
 
     [TestInitialize]
     public void Inicializar()
@@ -33,6 +35,16 @@ public abstract class ApiTestBase
         estabelecimentosCriados.Add(estabelecimentoId);
     }
 
+    protected void RegistrarCategoriaCriada(Guid categoriaId)
+    {
+        categoriasCriadas.Add(categoriaId);
+    }
+
+    protected void RegistrarProdutoCriado(Guid produtoId)
+    {
+        produtosCriados.Add(produtoId);
+    }
+
     [TestCleanup]
     public async Task Finalizar()
     {
@@ -48,6 +60,28 @@ public abstract class ApiTestBase
         UserManager<IdentityUser<Guid>> userManager =
             scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser<Guid>>>();
 
+        // Produtos precisam ser removidos antes das categorias.
+        foreach (Guid produtoId in produtosCriados)
+        {
+            Console.WriteLine($"Removendo produto: {produtoId}");
+
+            await dbContext.Database.ExecuteSqlInterpolatedAsync($"""
+                DELETE FROM "TBProdutos"
+                WHERE "Id" = {produtoId};
+                """);
+        }
+
+        // Categorias precisam ser removidas antes dos estabelecimentos.
+        foreach (Guid categoriaId in categoriasCriadas)
+        {
+            Console.WriteLine($"Removendo categoria: {categoriaId}");
+
+            await dbContext.Database.ExecuteSqlInterpolatedAsync($"""
+                DELETE FROM "TBCategorias"
+                WHERE "Id" = {categoriaId};
+                """);
+        }
+
         foreach (Guid clienteId in clientesCriados)
         {
             Console.WriteLine($"Removendo cliente: {clienteId}");
@@ -62,20 +96,14 @@ public abstract class ApiTestBase
 
             if (usuario is not null)
             {
-                IdentityResult resultado =
-                    await userManager.DeleteAsync(usuario);
-
-                Console.WriteLine(
-                    $"Usuário removido: {resultado.Succeeded}"
-                );
+                IdentityResult resultado = await userManager.DeleteAsync(usuario);
+                Console.WriteLine($"Usuário removido: {resultado.Succeeded}");
             }
         }
 
         foreach (Guid estabelecimentoId in estabelecimentosCriados)
         {
-            Console.WriteLine(
-                $"Removendo estabelecimento: {estabelecimentoId}"
-            );
+            Console.WriteLine($"Removendo estabelecimento: {estabelecimentoId}");
 
             await dbContext.Database.ExecuteSqlInterpolatedAsync($"""
                 DELETE FROM "TBEstabelecimentos"
@@ -83,18 +111,12 @@ public abstract class ApiTestBase
                 """);
 
             IdentityUser<Guid>? usuario =
-                await userManager.FindByIdAsync(
-                    estabelecimentoId.ToString()
-                );
+                await userManager.FindByIdAsync(estabelecimentoId.ToString());
 
             if (usuario is not null)
             {
-                IdentityResult resultado =
-                    await userManager.DeleteAsync(usuario);
-
-                Console.WriteLine(
-                    $"Usuário removido: {resultado.Succeeded}"
-                );
+                IdentityResult resultado = await userManager.DeleteAsync(usuario);
+                Console.WriteLine($"Usuário removido: {resultado.Succeeded}");
             }
         }
 
