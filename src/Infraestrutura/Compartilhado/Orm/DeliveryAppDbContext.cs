@@ -1,4 +1,5 @@
 using DeliveryApp.Dominio.Compartilhado.Auth;
+using DeliveryApp.Dominio.Modulos.Cardapio;
 using DeliveryApp.Dominio.Modulos.Clientes;
 using DeliveryApp.Dominio.Modulos.Estabelecimentos;
 using Microsoft.AspNetCore.Identity;
@@ -17,6 +18,9 @@ public sealed class DeliveryAppDbContext(
 
     public DbSet<Cliente> Clientes => Set<Cliente>();
     public DbSet<Estabelecimento> Estabelecimentos => Set<Estabelecimento>();
+    public DbSet<Categoria> Categorias => Set<Categoria>();
+    public DbSet<Complemento> Complementos => Set<Complemento>();
+    public DbSet<Produto> Produtos => Set<Produto>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
